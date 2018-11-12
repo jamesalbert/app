@@ -46,3 +46,4 @@ examples/test/test
 .DS_Store
 examples/action-event/bin/web/web
 examples/nav/nav-mac
+cef.framework
