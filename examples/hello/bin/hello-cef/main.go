@@ -1,7 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"github.com/murlokswarm/app"
+	"github.com/murlokswarm/app/drivers/cef"
+)
 
 func main() {
-	fmt.Println("hello chromium")
+	app.Run(&cef.Driver{})
 }
