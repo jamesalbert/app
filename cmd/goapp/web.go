@@ -375,5 +375,5 @@ func (pkg *webPackage) buildGopherJS(ctx context.Context) error {
 }
 
 func (pkg *webPackage) syncResources() error {
-	return file.Sync(pkg.resources, pkg.buildResources)
+	return file.Sync(pkg.resources, pkg.buildResources, true)
 }

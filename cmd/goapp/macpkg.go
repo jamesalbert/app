@@ -214,7 +214,7 @@ func (pkg *macPackage) createPackage() error {
 }
 
 func (pkg *macPackage) syncResources() error {
-	return file.Sync(pkg.resources, pkg.buildResources)
+	return file.Sync(pkg.resources, pkg.buildResources, true)
 }
 
 func (pkg *macPackage) generateIcons(ctx context.Context) error {

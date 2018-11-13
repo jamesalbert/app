@@ -63,7 +63,7 @@ func Copy(dst, src string) error {
 }
 
 // Sync synchronize src and dst.
-func Sync(dst, src string) error {
+func Sync(dst, src string, remove bool) error {
 	walkCopy := func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -99,6 +99,10 @@ func Sync(dst, src string) error {
 
 	if err := filepath.Walk(src, walkCopy); err != nil {
 		return err
+	}
+
+	if !remove {
+		return nil
 	}
 
 	walkRemove := func(path string, info os.FileInfo, err error) error {

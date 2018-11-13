@@ -4,10 +4,7 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"os"
-	"strings"
-	"time"
 
 	"github.com/murlokswarm/app/internal/logs"
 
@@ -152,40 +149,53 @@ func runMac(ctx context.Context, args []string) {
 		roots = []string{"."}
 	}
 
-	appname := roots[0]
-
-	if !strings.HasSuffix(appname, ".app") {
-		printVerbose("building package")
-		pkg, err := newMacPackage(roots[0], "")
-		if err != nil {
-			fail("%s", err)
-		}
-
-		if err = pkg.Build(ctx, macBuildConfig{
-			DeploymentTarget: c.DeploymentTarget,
-			Sign:             c.Sign,
-			Sandbox:          c.Sandbox,
-			Force:            c.Force,
-			Race:             c.Race,
-			Verbose:          c.Verbose,
-		}); err != nil {
-			fail("%s", err)
-		}
-
-		appname = pkg.name
+	pkg := cefPackage{
+		Sources: roots[0],
+		Race:    c.Race,
+		Force:   c.Force,
 	}
 
-	go listenLogs(ctx, c.LogsAddr)
-	time.Sleep(time.Millisecond * 200)
+	if err := pkg.Build(ctx); err != nil {
+		fail("%s", err)
+	}
 
-	os.Unsetenv("GOAPP_BUNDLE")
-	os.Setenv("GOAPP_LOGS_ADDR", c.LogsAddr)
-	os.Setenv("GOAPP_DEBUG", fmt.Sprintf("%v", c.Debug))
-
-	printVerbose("running %s", appname)
-	if err := execute(ctx, "open", "--wait-apps", appname); err != nil {
+	printVerbose("running %s", pkg.Output)
+	if err := execute(ctx, pkg.Exec); err != nil {
 		printErr("%s", err)
 	}
+
+	// if !strings.HasSuffix(appname, ".app") {
+	// 	printVerbose("building package")
+	// 	pkg, err := newMacPackage(roots[0], "")
+	// 	if err != nil {
+	// 		fail("%s", err)
+	// 	}
+
+	// 	if err = pkg.Build(ctx, macBuildConfig{
+	// 		DeploymentTarget: c.DeploymentTarget,
+	// 		Sign:             c.Sign,
+	// 		Sandbox:          c.Sandbox,
+	// 		Force:            c.Force,
+	// 		Race:             c.Race,
+	// 		Verbose:          c.Verbose,
+	// 	}); err != nil {
+	// 		fail("%s", err)
+	// 	}
+
+	// 	appname = pkg.name
+	// }
+
+	// go listenLogs(ctx, c.LogsAddr)
+	// time.Sleep(time.Millisecond * 200)
+
+	// os.Unsetenv("GOAPP_BUNDLE")
+	// os.Setenv("GOAPP_LOGS_ADDR", c.LogsAddr)
+	// os.Setenv("GOAPP_DEBUG", fmt.Sprintf("%v", c.Debug))
+
+	// printVerbose("running %s", appname)
+	// if err := execute(ctx, "open", "--wait-apps", appname); err != nil {
+	// 	printErr("%s", err)
+	// }
 }
 
 func listenLogs(ctx context.Context, addr string) {
